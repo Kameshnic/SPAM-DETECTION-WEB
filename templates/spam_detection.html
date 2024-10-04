@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Detection - Secure World</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #e9ecef; 
+            color: #212529;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 100px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+        textarea {
+            resize: none; 
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Spam Detection Web App</h1>
+        <form id="messageForm">
+            <div class="form-group">
+                <textarea id="message" class="form-control" name="message" rows="4" placeholder="Enter your message here..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Check Message</button>
+        </form>
+        <div id="result" class="result"></div>
+    </div>
+    <script>
+        function handleSubmit(event) {
+            event.preventDefault(); 
+
+            const message = document.getElementById('message').value; 
+            fetch('/predict', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message }), 
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `<h2 class="result">Result: <span class="${data.prediction === "Spam" ? "text-danger" : "text-success"}">${data.prediction}</span></h2>`;
+                document.body.style.backgroundColor = data.prediction === "Spam" ? 'red' : 'green';
+                document.getElementById('message').value = '';
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById('result').innerHTML = '<h2 class="result text-danger">Error: Unable to get prediction.</h2>';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('messageForm').addEventListener('submit', handleSubmit);
+        });
+    </script>
+</body>
+</html>
